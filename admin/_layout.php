@@ -42,7 +42,7 @@ $adminNav = [
 
 <header class="admin-bar">
   <a class="admin-bar__brand" href="<?= e(url('admin/index.php')) ?>">
-    <img src="<?= e(upload_url(setting('site_logo', 'assets/img/logo.png'), 'assets/img/logo.png')) ?>"
+    <img src="<?= e(upload_url(setting('site_logo', 'assets/img/logo.png'), 'assets/img/placeholder.svg')) ?>"
          alt="" width="32" height="32">
     <span><?= e(setting('site_name', 'Veloura Tec')) ?> Admin</span>
   </a>

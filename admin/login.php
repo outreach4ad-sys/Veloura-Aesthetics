@@ -61,7 +61,7 @@ if (is_post()) {
 
 <main class="auth-card">
   <img class="auth-card__logo"
-       src="<?= e(upload_url(setting('site_logo', 'assets/img/logo.png'), 'assets/img/logo.png')) ?>"
+       src="<?= e(upload_url(setting('site_logo', 'assets/img/logo.png'), 'assets/img/placeholder.svg')) ?>"
        alt="<?= e(setting('site_logo_alt', 'Veloura Tec')) ?>" width="72" height="72">
 
   <h1 class="auth-card__title"><?= e(t('auth.title')) ?></h1>

@@ -25,7 +25,7 @@ $contactAddr  = setting_public('contact_address');
   <div class="container site-footer__grid">
 
     <div class="site-footer__brand">
-      <img src="<?= e(upload_url(setting('site_logo', 'assets/img/logo.png'), 'assets/img/logo.png')) ?>"
+      <img src="<?= e(upload_url(setting('site_logo', 'assets/img/logo.png'), 'assets/img/placeholder.svg')) ?>"
            alt="<?= e(setting('site_logo_alt', 'Veloura Tec')) ?>"
            width="64" height="64" loading="lazy">
       <p class="site-footer__about"><?= e(setting('site_description', '')) ?></p>

@@ -26,7 +26,7 @@ $logo = (string) setting('site_logo', 'assets/img/logo.png');
 
     <a class="brand" href="<?= e(url()) ?>">
       <img class="brand__mark"
-           src="<?= e(upload_url($logo, 'assets/img/logo.png')) ?>"
+           src="<?= e(upload_url($logo, 'assets/img/placeholder.svg')) ?>"
            alt="<?= e(setting('site_logo_alt', 'Veloura Tec')) ?>"
            width="48" height="48">
       <span class="brand__text">
