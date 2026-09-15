@@ -138,3 +138,79 @@ visitors until you do.
 - [ ] Placeholder settings replaced
 - [ ] `https://veloura-tec.com/app/config.php` returns **403**
 - [ ] `https://veloura-tec.com/database/schema.sql` returns **403**
+
+---
+
+## 11. Point the domain at Hostinger
+
+**If the domain is registered with Hostinger:** it is already linked — set the
+site's document root to the folder you uploaded into (usually `public_html`) in
+hPanel → Websites → your site.
+
+**If the domain is registered elsewhere:** in hPanel → Domains, add
+`veloura-tec.com`, then at your registrar set the nameservers Hostinger shows
+(typically `ns1.dns-parking.com` / `ns2.dns-parking.com`), or point an `A`
+record at the server IP hPanel lists. DNS changes can take up to 24 hours.
+
+After it resolves, set `'base_url' => 'https://veloura-tec.com'` in
+`app/config.php` (no trailing slash) — every canonical URL, sitemap entry and
+WhatsApp product link is built from this value, so it must match the live
+domain exactly.
+
+## 12. Test the live site
+
+Work through `docs/PRODUCTION-READINESS.md` section 1 on the live domain, then
+spot-check:
+
+```
+https://veloura-tec.com/                      → 200, hero + categories
+https://veloura-tec.com/shop.php              → product grid
+https://veloura-tec.com/product/<a-real-slug> → product page (clean URL works)
+https://veloura-tec.com/sitemap.xml           → XML, your real URLs, no drafts
+https://veloura-tec.com/robots.txt            → correct Sitemap: line
+https://veloura-tec.com/app/config.php        → 403
+https://veloura-tec.com/database/schema.sql   → 403
+https://veloura-tec.com/admin/                 → redirects to login
+```
+
+Then, signed in as admin: add a category, add a published product with a real
+image, and confirm it appears on the shop. Finally, from the storefront, build
+an inquiry and submit it — confirm the row appears in Admin → Inquiries and the
+WhatsApp message opens with your configured number.
+
+Validate the markup once with:
+- Rich Results Test — <https://search.google.com/test/rich-results> (Product,
+  Organization, Breadcrumb schema)
+- A CSP report — open the browser console on each page type and confirm no
+  "Refused to…" messages.
+
+Submit the sitemap in Google Search Console (Sitemaps → enter `sitemap.xml`).
+
+## 13. Backups
+
+**Before every deploy or schema change, and on a schedule after launch:**
+
+*Database* — hPanel → Databases → phpMyAdmin → select the database → Export →
+Quick → SQL → Go. Store the `.sql` file off-server. This is the only copy of
+your products, categories, inquiries and settings.
+
+*Files* — hPanel → Files → Backups (Hostinger keeps automatic weekly backups on
+most plans), or File Manager → compress `public_html` → download. The uploaded
+media in `uploads/` is **not** in the repository, so it must be backed up from
+the server.
+
+*What the repository does and does not hold:* the code is in git, but
+`app/config.php` (credentials) and everything under `uploads/` are not. A full
+restore needs: the repository, a `config.php` with the live credentials, a
+database export, and the `uploads/` folder.
+
+**Restore drill:** at least once, restore your database export into a scratch
+database and point a staging copy at it, so you know the backup actually works
+before you need it.
+
+## Note on HTTPS hardening (updated Phase 5)
+
+Once HTTPS is confirmed working, uncomment the `Strict-Transport-Security` line
+in `.htaccess`. The Content-Security-Policy is sent by PHP (it needs a
+per-request nonce), so it works regardless of `mod_headers`; you do not need to
+add it to `.htaccess`.

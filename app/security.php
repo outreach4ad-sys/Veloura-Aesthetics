@@ -254,8 +254,28 @@ function auth_hash(string $password): string
 // =====================================================================
 
 /**
+ * A per-request Content-Security-Policy nonce.
+ *
+ * Generated once and reused, so the CSP header and the inline JSON-LD
+ * blocks (the only inline scripts on the site) carry the same value. This
+ * lets script-src stay 'self' + nonce with no 'unsafe-inline'.
+ */
+function csp_nonce(): string
+{
+    static $nonce = null;
+
+    if ($nonce === null) {
+        $nonce = base64_encode(random_bytes(16));
+    }
+
+    return $nonce;
+}
+
+/**
  * Baseline security headers, sent from header.php before any markup.
- * (.htaccess sets these too; this covers hosts where mod_headers is off.)
+ * (.htaccess sets the static ones too; this covers hosts where mod_headers
+ * is off, and carries the CSP, which needs a per-request nonce .htaccess
+ * cannot produce.)
  */
 function security_headers(): void
 {
@@ -267,4 +287,32 @@ function security_headers(): void
     header('X-Frame-Options: SAMEORIGIN');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
+
+    // Content-Security-Policy.
+    //  - default 'self': everything loads from this origin unless widened
+    //  - img-src allows data: (inline SVG placeholder, JS previews) and
+    //    https: (a future CDN or the configured OG image on another host)
+    //  - script-src is 'self' plus this request's nonce, so the inline
+    //    JSON-LD runs while injected inline scripts do not
+    //  - style-src 'self' — all CSS is external, no inline styles
+    //  - frame-src limited to the YouTube embed used on product pages
+    //  - object-src 'none', base-uri 'self', form-action 'self' close off
+    //    plugin, <base> and form-hijack vectors
+    $nonce = csp_nonce();
+    $csp = implode('; ', [
+        "default-src 'self'",
+        "img-src 'self' data: https:",
+        "script-src 'self' 'nonce-{$nonce}'",
+        "style-src 'self'",
+        "font-src 'self'",
+        "connect-src 'self'",
+        "frame-src https://www.youtube-nocookie.com https://www.youtube.com",
+        "media-src 'self'",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "frame-ancestors 'self'",
+    ]);
+
+    header('Content-Security-Policy: ' . $csp);
 }

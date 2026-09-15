@@ -165,12 +165,17 @@ function schema_render(): string
 {
     $out = '';
 
+    // The nonce matches the one in the CSP header, so these inline blocks
+    // are allowed while injected inline scripts are not.
+    $nonce = function_exists('csp_nonce') ? csp_nonce() : '';
+    $nonceAttr = $nonce !== '' ? ' nonce="' . $nonce . '"' : '';
+
     foreach (schema_add() as $schema) {
         $json = json_encode(
             $schema,
             JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
         );
-        $out .= '<script type="application/ld+json">' . $json . '</script>' . "\n";
+        $out .= '<script type="application/ld+json"' . $nonceAttr . '>' . $json . '</script>' . "\n";
     }
 
     return $out;

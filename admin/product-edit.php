@@ -307,7 +307,7 @@ require __DIR__ . '/_layout.php';
 
         <?php field_input('currency', 'Currency code', $form['currency'], $errors, [
             'maxlength' => 3,
-            'attrs'     => ['style' => 'text-transform:uppercase'],
+            'attrs'     => ['autocapitalize' => 'characters'],
             'hint'      => 'Three letters, e.g. USD or EUR.',
         ]); ?>
       </div>

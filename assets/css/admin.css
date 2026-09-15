@@ -467,3 +467,6 @@
   .media-grid { grid-template-columns: 1fr 1fr; }
 }
 .is-dimmed { opacity: .55; }
+
+/* Currency code reads as uppercase without an inline style (CSP-friendly). */
+#f_currency { text-transform: uppercase; }
