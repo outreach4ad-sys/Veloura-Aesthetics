@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Image not available">
+  <rect width="400" height="400" fill="#F7F5F2"/>
+  <rect x="0.5" y="0.5" width="399" height="399" fill="none" stroke="#E3E6EA"/>
+  <g fill="none" stroke="#B8734B" stroke-width="2" opacity="0.5">
+    <rect x="140" y="150" width="120" height="90" rx="4"/>
+    <path d="M140 215l32-30 26 24 30-28 32 34"/>
+    <circle cx="176" cy="175" r="9"/>
+  </g>
+  <text x="200" y="278" text-anchor="middle" font-family="Helvetica, Arial, sans-serif"
+        font-size="14" letter-spacing="2" fill="#767D86">VELOURA TEC</text>
+</svg>

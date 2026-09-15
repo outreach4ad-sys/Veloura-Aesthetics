@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /app/
+Disallow: /database/
+Disallow: /storage/
+Disallow: /includes/
+Disallow: /inquiry.php
+
+Sitemap: https://veloura-tec.com/sitemap.xml

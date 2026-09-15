@@ -1,0 +1,35 @@
+# =====================================================================
+# Veloura Tec — Upload directory lockdown
+#
+# Uploaded files are DATA, never code. Even if a malicious file were to
+# slip past the PHP-side validation in app/upload.php, it cannot execute
+# from here.
+# =====================================================================
+
+# Turn off every server-side interpreter for this tree.
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .phps .pl .py .cgi .asp .aspx .shtml .sh
+RemoveType    .php .phtml .php3 .php4 .php5 .php7 .php8 .phps .pl .py .cgi .asp .aspx .shtml .sh
+
+AddType text/plain .php .phtml .php3 .php4 .php5 .php7 .php8 .phps .pl .py .cgi .asp .aspx .shtml .sh
+
+# Block requests for executable extensions outright.
+<FilesMatch "\.(php|phtml|php[0-9]|phps|pl|py|cgi|asp|aspx|jsp|sh|bash|exe|htaccess)$">
+    Require all denied
+</FilesMatch>
+
+# Allow only the media types this project uploads.
+<FilesMatch "\.(jpg|jpeg|png|webp|gif|svg|mp4|webm)$">
+    Require all granted
+</FilesMatch>
+
+Options -Indexes -ExecCGI

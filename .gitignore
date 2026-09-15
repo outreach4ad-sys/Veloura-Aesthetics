@@ -1,0 +1,19 @@
+# Real credentials — never commit
+app/config.php
+
+# Runtime
+storage/*
+!storage/.gitkeep
+!storage/.htaccess
+*.log
+
+# Uploaded media
+uploads/products/*
+uploads/categories/*
+uploads/hero/*
+!uploads/*/.gitkeep
+!uploads/.htaccess
+
+# OS noise
+.DS_Store
+Thumbs.db

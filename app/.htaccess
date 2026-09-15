@@ -1,0 +1,4 @@
+# Application code must never be reachable over HTTP.
+# Every file under app/ also refuses to run without the VELOURA constant,
+# so this is the outer of two independent locks.
+Require all denied

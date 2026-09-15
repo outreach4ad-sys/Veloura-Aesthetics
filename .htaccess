@@ -1,0 +1,89 @@
+# =====================================================================
+# Veloura Tec — Apache configuration (Hostinger compatible)
+# =====================================================================
+
+Options -Indexes
+DirectoryIndex index.php index.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # --- Force HTTPS -------------------------------------------------
+    # Hostinger terminates SSL upstream, so check the forwarded header too.
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteCond %{HTTP_HOST} !^localhost [NC]
+    RewriteCond %{HTTP_HOST} !^127\.0\.0\.1
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+    # --- Canonical host: drop the www prefix -------------------------
+    RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+    # --- Block direct access to application internals ----------------
+    RewriteRule ^(app|database|storage|includes)/ - [F,L]
+
+    # --- Never serve these file types --------------------------------
+    RewriteRule \.(sql|log|ini|sh|bak|md|json|lock)$ - [F,L]
+
+    # --- Clean URLs --------------------------------------------------
+    # /product/my-device      -> product.php?slug=my-device
+    # /category/hydrafacial   -> category.php?slug=hydrafacial
+    # Query strings are appended (QSA) and the real .php files keep working.
+    RewriteRule ^product/([A-Za-z0-9\-]+)/?$   product.php?slug=$1  [QSA,L]
+    RewriteRule ^category/([A-Za-z0-9\-]+)/?$  category.php?slug=$1 [QSA,L]
+    RewriteRule ^sitemap\.xml$                 sitemap.php          [L]
+</IfModule>
+
+# ---------------------------------------------------------------------
+# Security headers
+# ---------------------------------------------------------------------
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    # Enable once HTTPS is confirmed working on the live domain:
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header unset X-Powered-By
+</IfModule>
+
+# ---------------------------------------------------------------------
+# Deny access to dotfiles and the configuration template
+# ---------------------------------------------------------------------
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "^(config\.php|config\.sample\.php|composer\.(json|lock))$">
+    Require all denied
+</FilesMatch>
+
+# ---------------------------------------------------------------------
+# Compression
+# ---------------------------------------------------------------------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ---------------------------------------------------------------------
+# Browser caching for static assets
+# ---------------------------------------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css                "access plus 1 year"
+    ExpiresByType application/javascript  "access plus 1 year"
+    ExpiresByType image/jpeg              "access plus 1 year"
+    ExpiresByType image/png               "access plus 1 year"
+    ExpiresByType image/webp              "access plus 1 year"
+    ExpiresByType image/svg+xml           "access plus 1 year"
+    ExpiresByType video/mp4               "access plus 1 month"
+    ExpiresByType text/html               "access plus 0 seconds"
+</IfModule>
+
+# ---------------------------------------------------------------------
+# Error pages (added in Phase 5; harmless until the files exist)
+# ---------------------------------------------------------------------
+ErrorDocument 404 /404.php
