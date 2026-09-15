@@ -33,6 +33,7 @@ DirectoryIndex index.php index.html
     RewriteRule ^product/([A-Za-z0-9\-]+)/?$   product.php?slug=$1  [QSA,L]
     RewriteRule ^category/([A-Za-z0-9\-]+)/?$  category.php?slug=$1 [QSA,L]
     RewriteRule ^sitemap\.xml$                 sitemap.php          [L]
+    RewriteRule ^robots\.txt$                  robots.php           [L]
 </IfModule>
 
 # ---------------------------------------------------------------------

@@ -86,26 +86,139 @@ function e_json(mixed $value): string
 // =====================================================================
 
 /**
- * Build an absolute site URL: url('shop.php') or url('/product.php?slug=x').
+ * Build a site URL for an internal link, form or redirect.
+ *
+ * ORIGIN-RELATIVE: it carries only the path (plus any subfolder prefix from
+ * base_url), never a scheme or host. So every link works on whatever domain
+ * the site is served from — the final domain, a hosting temporary URL, an IP,
+ * http or https — with no configuration. Nothing hardcodes a domain.
+ *
+ * For the few places that must be absolute (canonical, Open Graph, sitemap,
+ * the WhatsApp product links), use abs_url() / to_abs(), which build from the
+ * current request host.
  */
 function url(string $path = ''): string
 {
-    $base = rtrim((string) config('base_url', ''), '/');
-    $path = ltrim($path, '/');
+    $prefix = base_path();
+    $path   = ltrim($path, '/');
 
-    return $path === '' ? $base . '/' : $base . '/' . $path;
+    return $path === '' ? ($prefix === '' ? '/' : $prefix . '/') : $prefix . '/' . $path;
 }
 
 /**
- * Asset URL with a cache-busting stamp based on file modification time.
+ * The scheme + host of the current request, e.g. "https://example.com".
+ *
+ * Honours X-Forwarded-Proto (Hostinger terminates TLS upstream). Returns ''
+ * when there is no request (CLI), in which case abs_url() falls back to
+ * base_url from config.
+ */
+function request_origin(): string
+{
+    $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
+    if ($host === '') {
+        return '';
+    }
+
+    // Keep only a sane host[:port]; ignore anything unexpected in the header.
+    if (!preg_match('/^[A-Za-z0-9.\-]+(:[0-9]+)?$/', $host)) {
+        return '';
+    }
+
+    $https = (
+        (($_SERVER['HTTPS'] ?? '') !== '' && ($_SERVER['HTTPS'] ?? '') !== 'off')
+        || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
+        || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443
+    );
+
+    return ($https ? 'https://' : 'http://') . $host;
+}
+
+/**
+ * An absolute URL for the current domain: request host + url($path).
+ *
+ * Falls back to base_url from config when there is no request (CLI). Used
+ * only where an absolute URL is required (SEO tags, sitemap, links that leave
+ * the site such as the WhatsApp message).
+ */
+function abs_url(string $path = ''): string
+{
+    $origin = request_origin();
+
+    if ($origin === '') {
+        // CLI fallback: use the configured base_url's scheme+host if present.
+        $configured = (string) config('base_url', '');
+        $scheme = (string) parse_url($configured, PHP_URL_SCHEME);
+        $host   = (string) parse_url($configured, PHP_URL_HOST);
+        $origin = ($scheme !== '' && $host !== '') ? $scheme . '://' . $host : '';
+    }
+
+    return $origin . url($path);
+}
+
+/**
+ * Turn any link (relative or absolute) into an absolute URL for the current
+ * domain. An already-absolute http(s) URL is returned unchanged.
+ */
+function to_abs(string $link): string
+{
+    $link = trim($link);
+
+    if ($link === '') {
+        return abs_url();
+    }
+    if (preg_match('#^https?://#i', $link)) {
+        return $link;
+    }
+
+    return abs_url(ltrim($link, '/'));
+}
+
+/**
+ * The site's path prefix, derived from the PATH part of base_url only.
+ *
+ * Empty when the site is at the domain root, "/sub" when it lives in a
+ * subfolder. Ignores the scheme and host, so assets built on top of it
+ * resolve against whatever origin the page is actually served from.
+ */
+function base_path(): string
+{
+    static $prefix = null;
+
+    if ($prefix === null) {
+        $path   = (string) parse_url((string) config('base_url', ''), PHP_URL_PATH);
+        $prefix = rtrim($path, '/');   // '' for root, '/sub' for a subfolder
+    }
+
+    return $prefix;
+}
+
+/**
+ * URL for a static asset (CSS, JS, image), with a cache-busting stamp.
+ *
+ * Deliberately ORIGIN-RELATIVE, not absolute: it uses only the path prefix
+ * from base_url, never its scheme or host. So the stylesheet loads from the
+ * same origin the page is served on — whether that is the final domain, a
+ * hosting temporary URL, an IP, or http vs https. A base_url whose domain
+ * or protocol does not match the browsing origin no longer leaves the page
+ * unstyled. (Canonical, Open Graph and sitemap URLs stay absolute via
+ * url(), because SEO needs the real domain.)
  */
 function asset(string $path): string
 {
-    $path = ltrim($path, '/');
-    $file = VELOURA_ROOT . '/' . $path;
+    $path  = ltrim($path, '/');
+    $file  = VELOURA_ROOT . '/' . $path;
     $stamp = is_file($file) ? '?v=' . filemtime($file) : '';
 
-    return url($path) . $stamp;
+    return base_path() . '/' . $path . $stamp;
+}
+
+/**
+ * Origin-relative URL for an uploaded/static file path (no cache stamp).
+ * Same rationale as asset(): resolves against the current origin.
+ */
+function asset_path(string $path): string
+{
+    return base_path() . '/' . ltrim($path, '/');
 }
 
 /**
@@ -115,11 +228,15 @@ function upload_url(?string $path, string $fallback = 'assets/img/placeholder.sv
 {
     $path = trim((string) $path);
 
+    // Origin-relative (asset_path), so in-page images load from the current
+    // origin regardless of the configured domain/protocol — same reasoning
+    // as asset(). Absolute URLs for images belong in og:image / schema,
+    // which build them explicitly from base_url.
     if ($path === '' || !is_file(VELOURA_ROOT . '/' . ltrim($path, '/'))) {
-        return url($fallback);
+        return asset_path($fallback);
     }
 
-    return url($path);
+    return asset_path($path);
 }
 
 /**

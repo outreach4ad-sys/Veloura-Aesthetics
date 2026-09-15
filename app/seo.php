@@ -69,7 +69,15 @@ function meta_description(): string
 
 function meta_canonical(): string
 {
-    return (string) meta_get('canonical', url(ltrim(current_path(), '/')));
+    $canonical = meta_get('canonical');
+
+    // Pages pass a relative url() value; make it absolute for the current
+    // domain. When none is set, use the current path.
+    if (is_string($canonical) && $canonical !== '') {
+        return to_abs($canonical);
+    }
+
+    return abs_url(ltrim(current_path(), '/'));
 }
 
 function meta_image(): string
@@ -77,12 +85,12 @@ function meta_image(): string
     $image = meta_get('image');
 
     if (is_string($image) && $image !== '') {
-        return str_starts_with($image, 'http') ? $image : url(ltrim($image, '/'));
+        return to_abs($image);
     }
 
     $default = (string) setting('seo_default_og_image', '');
 
-    return $default !== '' ? url(ltrim($default, '/')) : url('assets/img/logo.png');
+    return $default !== '' ? to_abs($default) : abs_url('assets/img/logo.png');
 }
 
 /**
@@ -125,8 +133,8 @@ function schema_organization(): array
         '@type'    => 'Organization',
         'name'     => (string) setting('company_name', 'Optical Cargo'),
         'alternateName' => (string) setting('site_name', 'Veloura Tec'),
-        'url'      => url(),
-        'logo'     => url((string) setting('site_logo', 'assets/img/logo.png')),
+        'url'      => abs_url(),
+        'logo'     => abs_url(ltrim((string) setting('site_logo', 'assets/img/logo.png'), '/')),
         'description' => (string) setting('site_description', ''),
     ];
 

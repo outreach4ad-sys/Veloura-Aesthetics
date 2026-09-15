@@ -40,7 +40,7 @@ page_meta([
         ?: excerpt($category['description'] ?: ('Professional ' . $category['name'] . ' equipment for clinics and aesthetic centers.'), 200),
     'canonical'   => url('category.php?slug=' . urlencode((string) $category['slug'])),
     'robots'      => $result['page'] > 1 ? 'noindex, follow' : 'index, follow',
-    'image'       => $category['image'] ? upload_url($category['image']) : null,
+    'image'       => $category['image'] ?: null,
 ]);
 
 require __DIR__ . '/includes/header.php';

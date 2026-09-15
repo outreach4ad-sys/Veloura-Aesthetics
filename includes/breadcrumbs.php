@@ -28,7 +28,8 @@ foreach ($trail as $position => $crumb) {
         'name'     => $crumb['label'],
     ];
     if (!empty($crumb['url'])) {
-        $item['item'] = $crumb['url'];
+        // Schema needs absolute URLs; the visible <a> below stays relative.
+        $item['item'] = to_abs((string) $crumb['url']);
     }
     $schemaItems[] = $item;
 }

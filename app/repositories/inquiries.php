@@ -417,7 +417,7 @@ function inquiry_create(array $customer, array $lines): array
                 'inquiry_id'   => $id,
                 'product_id'   => (int) $line['id'],
                 'product_name' => (string) $line['name'],
-                'product_url'  => (string) $line['url'],
+                'product_url'  => to_abs((string) $line['url']),
                 'unit_price'   => $priced ? (float) $line['price'] : null,
                 'currency'     => $priced ? (string) $line['currency'] : null,
                 'quantity'     => (int) $line['quantity'],
@@ -456,7 +456,7 @@ function inquiry_whatsapp_message(string $reference, array $customer, array $lin
 
         $parts[] = sprintf('%d) %s', $index++, $line['name']);
         $parts[] = sprintf('   Quantity: %d  |  %s', (int) $line['quantity'], $price);
-        $parts[] = '   ' . $line['url'];
+        $parts[] = '   ' . to_abs((string) $line['url']);
     }
 
     $totals = cart_totals($lines);

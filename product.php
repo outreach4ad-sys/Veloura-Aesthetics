@@ -48,7 +48,7 @@ page_meta([
     'description' => $product['seo_description'] ?: excerpt($product['short_description'], 200),
     'canonical'   => product_url($product),
     'og_type'     => 'product',
-    'image'       => $product['main_image'] ? upload_url($product['main_image']) : null,
+    'image'       => $product['main_image'] ?: null,
 ]);
 
 schema_add(product_schema($product));

@@ -934,7 +934,7 @@ function product_schema(array $product): array
         '@context' => 'https://schema.org',
         '@type'    => 'Product',
         'name'     => (string) $product['name'],
-        'url'      => product_url($product),
+        'url'      => to_abs(product_url($product)),
         'category' => (string) ($product['category_name'] ?? ''),
     ];
 
@@ -942,7 +942,7 @@ function product_schema(array $product): array
         $schema['description'] = excerpt((string) $product['short_description'], 300);
     }
     if (!empty($product['main_image'])) {
-        $schema['image'] = upload_url($product['main_image']);
+        $schema['image'] = abs_url(ltrim((string) $product['main_image'], '/'));
     }
     if (!empty($product['brand'])) {
         $schema['brand'] = ['@type' => 'Brand', 'name' => (string) $product['brand']];
@@ -956,7 +956,7 @@ function product_schema(array $product): array
             'price'         => number_format((float) $product['price'], 2, '.', ''),
             'priceCurrency' => (string) $product['currency'],
             'availability'  => 'https://schema.org/InStock',
-            'url'           => product_url($product),
+            'url'           => to_abs(product_url($product)),
         ];
     }
 

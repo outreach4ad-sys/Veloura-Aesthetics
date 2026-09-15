@@ -41,10 +41,10 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
 
 // Homepage
-echo $entry(url(), null, 'weekly', '1.0');
+echo $entry(abs_url(), null, 'weekly', '1.0');
 
 // Shop
-echo $entry(url('shop.php'), null, 'daily', '0.9');
+echo $entry(abs_url('shop.php'), null, 'daily', '0.9');
 
 // Static content pages (only those that exist and are indexable)
 $staticPages = [
@@ -58,7 +58,7 @@ $staticPages = [
 ];
 foreach ($staticPages as $page => $priority) {
     if (is_file(__DIR__ . '/' . $page)) {
-        echo $entry(url($page), null, 'monthly', $priority);
+        echo $entry(abs_url($page), null, 'monthly', $priority);
     }
 }
 
@@ -68,7 +68,7 @@ foreach (db_all(
     'SELECT slug, updated_at FROM categories WHERE is_published = 1 ORDER BY sort_order, name'
 ) as $category) {
     echo $entry(
-        url('category.php?slug=' . urlencode((string) $category['slug'])),
+        abs_url('category.php?slug=' . urlencode((string) $category['slug'])),
         $toDate($category['updated_at']),
         'weekly',
         '0.7'
@@ -80,7 +80,7 @@ foreach (db_all(
     'SELECT slug, updated_at FROM products WHERE status = "published" ORDER BY updated_at DESC'
 ) as $product) {
     echo $entry(
-        url('product.php?slug=' . urlencode((string) $product['slug'])),
+        abs_url('product.php?slug=' . urlencode((string) $product['slug'])),
         $toDate($product['updated_at']),
         'weekly',
         '0.8'
