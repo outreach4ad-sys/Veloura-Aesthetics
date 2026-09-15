@@ -54,7 +54,7 @@ if (is_post()) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title><?= e(t('auth.title')) ?> — <?= e(setting('site_name', 'Veloura Tec')) ?></title>
-<link rel="icon" href="<?= e(asset('assets/img/favicon.png')) ?>" type="image/png">
+<link rel="icon" href="<?= e(asset('assets/img/favicon.svg')) ?>" type="image/svg+xml">
 <link rel="stylesheet" href="<?= e(asset('assets/css/admin.css')) ?>">
 </head>
 <body class="admin admin--auth">

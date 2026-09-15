@@ -30,6 +30,9 @@ return [
     'cta.explore'      => 'Explore Equipment',
     'cta.request_quote'=> 'Request a Quote',
     'cta.add_inquiry'  => 'Add to Inquiry',
+    'cta.in_inquiry'   => 'In your inquiry',
+    'cta.send_whatsapp'=> 'Send Inquiry via WhatsApp',
+    'cta.continue'     => 'Continue browsing',
     'cta.view_details' => 'View Details',
     'cta.inquiry_cart' => 'Inquiry Cart',
 
@@ -40,6 +43,24 @@ return [
     'common.featured'  => 'Featured',
     'common.price_on_request' => 'Price on request',
     'common.empty'     => 'Nothing to show here yet.',
+    'common.results'   => 'results',
+    'common.remove'    => 'Remove',
+    'common.quantity'  => 'Quantity',
+
+    // Inquiry cart
+    'inquiry.title'        => 'Inquiry Cart',
+    'inquiry.empty'        => 'Your inquiry list is empty.',
+    'inquiry.empty_hint'   => 'Browse the catalog and add the equipment you would like a quote for.',
+    'inquiry.your_details' => 'Your details',
+    'inquiry.full_name'    => 'Full name',
+    'inquiry.country'      => 'Country',
+    'inquiry.city'         => 'City',
+    'inquiry.email'        => 'Email address',
+    'inquiry.whatsapp'     => 'WhatsApp number',
+    'inquiry.company'      => 'Company / clinic name',
+    'inquiry.notes'        => 'Additional notes',
+    'inquiry.optional'     => 'optional',
+    'inquiry.success'      => 'Your inquiry has been received',
 
     // Footer
     'footer.rights'    => 'All rights reserved.',

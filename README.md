@@ -14,8 +14,7 @@ product inquiry website for **Optical Cargo**.
 | 1 | Foundation, schema, PDO, config, includes, authentication | ✅ complete |
 | 2 | Design system and visual language | pending |
 | 3 | Admin dashboard: categories, products, media, videos, hero, settings, inquiries | ✅ complete |
-| 5 | Storefront: shop, category, product detail | pending |
-| 6 | Inquiry cart and WhatsApp integration | pending |
+| 4 | Inquiry cart, WhatsApp ordering, shop/category/product pages | ✅ complete |
 | 7 | Content pages | pending |
 | 8 | SEO, performance, accessibility polish | pending |
 
@@ -66,4 +65,5 @@ Open http://localhost:8000 and http://localhost:8000/admin/login.php.
 - New UI strings belong in `app/lang/en.php` and are read via `t()`.
 
 See `docs/DEPLOYMENT.md` to deploy, `docs/ADMIN.md` for the dashboard, and
-`docs/TESTING.md` for the QA checklist.
+`docs/TESTING.md` for the QA checklist,
+and `docs/INQUIRY-FLOW.md` for the inquiry and WhatsApp architecture.

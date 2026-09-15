@@ -816,3 +816,149 @@ function products_selectable(int $excludeId = 0): array
         ['exclude' => $excludeId]
     );
 }
+
+// =====================================================================
+// Storefront listing (Phase 4)
+// =====================================================================
+
+/**
+ * Published products for the shop and category pages.
+ *
+ * Mirrors products_admin_list() but is hard-scoped to published rows, so
+ * a draft can never leak through a crafted query string.
+ *
+ * @param array{search?:string,category?:int,sort?:string} $filters
+ * @return array{rows:array<int,array<string,mixed>>, total:int, pages:int, page:int}
+ */
+function products_public_list(array $filters = [], int $page = 1, ?int $perPage = null): array
+{
+    $where  = ['p.status = "published"'];
+    $params = [];
+
+    $search = trim((string) ($filters['search'] ?? ''));
+    if ($search !== '') {
+        // One placeholder per occurrence — MySQL's native prepares bind
+        // each name exactly once.
+        $where[] = '(p.name LIKE :s_name OR p.short_description LIKE :s_short OR p.brand LIKE :s_brand)';
+        $term = '%' . $search . '%';
+        $params['s_name']  = $term;
+        $params['s_short'] = $term;
+        $params['s_brand'] = $term;
+    }
+
+    $categoryId = (int) ($filters['category'] ?? 0);
+    if ($categoryId > 0) {
+        $where[] = 'p.category_id = :category';
+        $params['category'] = $categoryId;
+    }
+
+    $clause = ' WHERE ' . implode(' AND ', $where);
+
+    // The request picks a key; it can never supply SQL.
+    $sortMap = [
+        'newest'     => 'p.is_featured DESC, p.created_at DESC',
+        'name'       => 'p.name ASC',
+        'name_desc'  => 'p.name DESC',
+        'price'      => 'p.price IS NULL, p.price ASC',
+        'price_desc' => 'p.price IS NULL, p.price DESC',
+    ];
+    $orderBy = $sortMap[(string) ($filters['sort'] ?? 'newest')] ?? $sortMap['newest'];
+
+    $total = (int) db_value(
+        'SELECT COUNT(*) FROM products p JOIN categories c ON c.id = p.category_id' . $clause,
+        $params,
+        0
+    );
+
+    $perPage = max(1, min(60, $perPage ?? setting_int('products_per_page', 12)));
+    $pages   = max(1, (int) ceil($total / $perPage));
+    $page    = max(1, min($page, $pages));
+
+    $rows = db_all(
+        'SELECT p.*, c.name AS category_name, c.slug AS category_slug
+           FROM products p
+           JOIN categories c ON c.id = p.category_id'
+        . $clause
+        . ' ORDER BY ' . $orderBy
+        . ' LIMIT ' . $perPage . ' OFFSET ' . (($page - 1) * $perPage),
+        $params
+    );
+
+    return ['rows' => $rows, 'total' => $total, 'pages' => $pages, 'page' => $page];
+}
+
+/**
+ * Related products for the product page, falling back to others in the
+ * same category when none were picked by hand.
+ *
+ * @return array<int,array<string,mixed>>
+ */
+function product_related_published(int $productId, int $categoryId, int $limit = 4): array
+{
+    $rows = db_all(
+        'SELECT p.*, c.name AS category_name, c.slug AS category_slug
+           FROM product_related r
+           JOIN products p ON p.id = r.related_product_id
+           JOIN categories c ON c.id = p.category_id
+          WHERE r.product_id = :id AND p.status = "published"
+          ORDER BY r.sort_order
+          LIMIT ' . max(1, $limit),
+        ['id' => $productId]
+    );
+
+    if ($rows !== []) {
+        return $rows;
+    }
+
+    return db_all(
+        'SELECT p.*, c.name AS category_name, c.slug AS category_slug
+           FROM products p
+           JOIN categories c ON c.id = p.category_id
+          WHERE p.status = "published" AND p.category_id = :category AND p.id <> :id
+          ORDER BY p.is_featured DESC, p.created_at DESC
+          LIMIT ' . max(1, $limit),
+        ['category' => $categoryId, 'id' => $productId]
+    );
+}
+
+/**
+ * Product structured data. Only fields backed by real values are
+ * included — nothing about ratings, reviews or approvals is invented.
+ *
+ * @param array<string,mixed> $product
+ * @return array<string,mixed>
+ */
+function product_schema(array $product): array
+{
+    $schema = [
+        '@context' => 'https://schema.org',
+        '@type'    => 'Product',
+        'name'     => (string) $product['name'],
+        'url'      => product_url($product),
+        'category' => (string) ($product['category_name'] ?? ''),
+    ];
+
+    if (!empty($product['short_description'])) {
+        $schema['description'] = excerpt((string) $product['short_description'], 300);
+    }
+    if (!empty($product['main_image'])) {
+        $schema['image'] = upload_url($product['main_image']);
+    }
+    if (!empty($product['brand'])) {
+        $schema['brand'] = ['@type' => 'Brand', 'name' => (string) $product['brand']];
+    }
+
+    // A quote-only product has no public price, so it advertises
+    // availability for enquiry rather than a fabricated offer.
+    if ($product['price'] !== null && $product['price_mode'] === 'show' && setting_bool('show_prices', true)) {
+        $schema['offers'] = [
+            '@type'         => 'Offer',
+            'price'         => number_format((float) $product['price'], 2, '.', ''),
+            'priceCurrency' => (string) $product['currency'],
+            'availability'  => 'https://schema.org/InStock',
+            'url'           => product_url($product),
+        ];
+    }
+
+    return $schema;
+}

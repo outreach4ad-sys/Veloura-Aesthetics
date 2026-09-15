@@ -1,0 +1,6 @@
+# JSON endpoints only. No directory listing, no execution of anything but PHP.
+Options -Indexes
+
+<FilesMatch "\.(sql|log|ini|bak|md)$">
+    Require all denied
+</FilesMatch>

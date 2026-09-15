@@ -68,15 +68,15 @@ require __DIR__ . '/includes/header.php';
     <?php if ($categories === []): ?>
       <p class="empty-state">No categories are published yet.</p>
     <?php else: ?>
-      <ul class="grid grid--4">
+      <ul class="category-grid">
         <?php foreach ($categories as $category): ?>
-          <li>
+          <li class="category-tile">
             <a href="<?= e(category_url($category)) ?>">
-              <h3><?= e($category['name']) ?></h3>
+              <span class="category-tile__name"><?= e($category['name']) ?></span>
+              <span class="category-tile__count">
+                <?= (int) $category['product_count'] ?> product<?= (int) $category['product_count'] === 1 ? '' : 's' ?>
+              </span>
             </a>
-            <p class="section__lead">
-              <?= (int) $category['product_count'] ?> product<?= (int) $category['product_count'] === 1 ? '' : 's' ?>
-            </p>
           </li>
         <?php endforeach; ?>
       </ul>
@@ -97,20 +97,15 @@ require __DIR__ . '/includes/header.php';
         and they will appear here automatically.
       </p>
     <?php else: ?>
-      <ul class="grid grid--4">
+      <div class="card-grid">
         <?php foreach ($featured as $product): ?>
-          <li>
-            <a href="<?= e(product_url($product)) ?>">
-              <img src="<?= e(upload_url($product['main_image'])) ?>"
-                   alt="<?= e($product['main_image_alt'] ?: $product['name']) ?>"
-                   width="400" height="400" loading="lazy">
-              <h3><?= e($product['name']) ?></h3>
-            </a>
-            <p class="section__lead"><?= e($product['category_name']) ?></p>
-            <p><strong><?= e(product_price_label($product)) ?></strong></p>
-          </li>
+          <?php require __DIR__ . '/includes/product-card.php'; ?>
         <?php endforeach; ?>
-      </ul>
+      </div>
+
+      <p class="section__more">
+        <a class="btn btn--ghost" href="<?= e(url('shop.php')) ?>">View all equipment</a>
+      </p>
     <?php endif; ?>
   </div>
 </section>

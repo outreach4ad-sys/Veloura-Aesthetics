@@ -183,7 +183,95 @@ Every item below was executed against MariaDB 10.11 / PHP 8.4 before hand-off.
 
 ---
 
-## Not in Phase 1 or 3
+---
+
+# Phase 4 — inquiry cart and WhatsApp ordering
+
+All items below were executed against MariaDB 10.11 / PHP 8.4 and a real
+Chromium browser before hand-off.
+
+## Cart API (`api/cart.php`)
+
+- [ ] Returns names, prices and line totals read from the database
+- [ ] A payload carrying `"price":1,"name":"HACKED"` is ignored — the response
+      still shows the real name and `$7,900.00 USD`
+- [ ] A draft product and an unknown id are dropped and listed in `dropped`
+- [ ] Quantity `99999` clamps to 999; `-5` and `0` clamp to 1
+- [ ] `GET` returns **405**, malformed JSON returns **400**
+- [ ] A foreign `Origin` header returns **403**
+
+## Adding products (desktop)
+
+- [ ] Add from a shop card — badge shows 1, label becomes "In your inquiry",
+      toast appears
+- [ ] Add from a product page with quantity 3 — badge shows 4
+- [ ] Clicking Add again on a product already in the list opens the cart
+      instead of stacking it
+- [ ] Badge persists after navigating to another page
+- [ ] Badge syncs across two tabs (storage event)
+
+## Cart page
+
+- [ ] Rows render from the API with image, category, name and price
+- [ ] A mixed cart hides the total and explains why
+- [ ] An all-priced cart shows the total (verified: `$28,300.00 USD`)
+- [ ] `+` and `−` update the units count and persist
+- [ ] Typing a quantity updates it; typing `0` clamps to 1
+- [ ] Remove deletes the row; removing the last row shows the empty state
+- [ ] The form is hidden while the cart is empty
+- [ ] A product unpublished after it was added is dropped, a notice explains it,
+      and localStorage is pruned so the notice does not repeat
+
+## Submission
+
+- [ ] Posting without a CSRF token returns **419**
+- [ ] Empty name, country and WhatsApp each produce their own message
+- [ ] An invalid email is rejected; a 2-digit WhatsApp number is rejected
+- [ ] An empty cart is rejected
+- [ ] A cart holding only draft products is rejected
+- [ ] A valid submission redirects (POST-then-redirect — refresh cannot
+      submit twice)
+- [ ] `inquiries` gets one row with the customer's details and `items_count`
+- [ ] `inquiry_items` gets one row per product with the **snapshot** price
+- [ ] Quote-only lines store `unit_price = NULL`
+- [ ] The IP is stored binary (`INET6_NTOA` reads it back) and the user agent
+      is captured
+- [ ] The honeypot submission redirects normally but writes **no row**
+- [ ] A second submission within 20 seconds is refused
+- [ ] Six concurrent submissions produce six **distinct** references and no
+      `TMP-` rows are left behind
+
+## Success state
+
+- [ ] Reference number is displayed (e.g. `VT-2026-000009`)
+- [ ] The WhatsApp link points at the number from Site Settings
+- [ ] The message contains the company name, every product with its quantity,
+      price and URL, the customer's details and the notes
+- [ ] A listed total appears only when every line is priced
+- [ ] localStorage is cleared and the badge returns to hidden
+- [ ] Reloading `?sent=1` does not show the success state again
+- [ ] With `whatsapp_number` unset, the inquiry still saves and the page says so
+      instead of showing a broken link
+
+## Admin
+
+- [ ] The inquiry appears in `admin/inquiries.php` with its reference
+- [ ] The detail view shows company, city, notes, line items and the total
+- [ ] "Reply on WhatsApp" opens the customer's number
+- [ ] The dashboard "New inquiries" count increases
+
+## Mobile (390px)
+
+- [ ] Home, shop, category, product and cart have **no horizontal scroll**
+- [ ] Tapping Add works and updates the badge
+- [ ] Stepper buttons are 44x44px
+- [ ] The submit button spans the form width
+- [ ] The hamburger opens the menu
+- [ ] No JavaScript or network errors in the console
+
+---
+
+## Not in Phase 1, 3 or 4
 
 These are expected to 404 or be unstyled until later phases: `shop.php`,
 `category.php`, `product.php`, `inquiry.php`, `about.php`, `solutions.php`,

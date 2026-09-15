@@ -1,14 +1,11 @@
 /**
- * Veloura Tec — Site scripts (Phase 1).
+ * Veloura Tec — Site scripts.
  *
- * Vanilla JS, no dependencies, loaded with `defer`. Phase 1 covers the
- * mobile navigation and the inquiry-cart badge; the cart itself lands in
- * Phase 6 and will reuse the same storage key.
+ * Vanilla JS, no dependencies, loaded with `defer`. The inquiry cart lives
+ * in cart.js; this file covers site chrome only.
  */
 (function () {
   'use strict';
-
-  var CART_KEY = 'veloura_inquiry_cart';
 
   /* ------------------------------------------------------ mobile nav */
   function initNav() {
@@ -22,7 +19,6 @@
       toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
 
-    // Close the drawer when a link is followed or Escape is pressed.
     nav.addEventListener('click', function (event) {
       if (event.target.closest('a')) {
         nav.classList.remove('is-open');
@@ -39,42 +35,41 @@
     });
   }
 
-  /* ------------------------------------------------- inquiry cart badge */
-  function readCart() {
-    try {
-      var raw = window.localStorage.getItem(CART_KEY);
-      var parsed = raw ? JSON.parse(raw) : [];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (error) {
-      return [];
-    }
-  }
-
-  function updateCartBadge() {
-    var items = readCart();
-    var count = items.reduce(function (sum, item) {
-      return sum + (parseInt(item.quantity, 10) || 0);
-    }, 0);
-
-    document.querySelectorAll('[data-cart-count]').forEach(function (badge) {
-      badge.textContent = String(count);
-      badge.hidden = count === 0;
+  /* ------------------------------------------- shop filter auto-submit */
+  function initAutoSubmit() {
+    document.querySelectorAll('[data-auto-submit]').forEach(function (control) {
+      control.addEventListener('change', function () {
+        var form = control.closest('form');
+        if (form) form.submit();
+      });
     });
   }
 
-  // Keep the badge in sync across tabs.
-  window.addEventListener('storage', function (event) {
-    if (event.key === CART_KEY) updateCartBadge();
-  });
+  /* ------------------------------------------------ product gallery */
+  function initGallery() {
+    var gallery = document.querySelector('[data-gallery]');
+    if (!gallery) return;
 
-  document.addEventListener('veloura:cart-changed', updateCartBadge);
+    var main = gallery.querySelector('[data-gallery-main]');
+    if (!main) return;
 
-  /* ---------------------------------------------------------- bootstrap */
+    gallery.addEventListener('click', function (event) {
+      var thumb = event.target.closest('[data-gallery-src]');
+      if (!thumb) return;
+
+      event.preventDefault();
+      main.src = thumb.getAttribute('data-gallery-src');
+      main.alt = thumb.getAttribute('data-gallery-alt') || '';
+
+      gallery.querySelectorAll('[data-gallery-src]').forEach(function (button) {
+        button.setAttribute('aria-current', String(button === thumb));
+      });
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     initNav();
-    updateCartBadge();
+    initAutoSubmit();
+    initGallery();
   });
-
-  // Exposed so later phases (cart.js, shop.js) share one storage contract.
-  window.Veloura = { CART_KEY: CART_KEY, readCart: readCart, updateCartBadge: updateCartBadge };
 })();

@@ -36,7 +36,7 @@ schema_add(schema_organization());
 <meta name="twitter:description" content="<?= e(meta_description()) ?>">
 <meta name="twitter:image" content="<?= e(meta_image()) ?>">
 
-<link rel="icon" href="<?= e(asset('assets/img/favicon.png')) ?>" type="image/png">
+<link rel="icon" href="<?= e(asset('assets/img/favicon.svg')) ?>" type="image/svg+xml">
 <link rel="apple-touch-icon" href="<?= e(asset('assets/img/logo.png')) ?>">
 <link rel="stylesheet" href="<?= e(asset('assets/css/base.css')) ?>">
 </head>

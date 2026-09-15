@@ -90,5 +90,9 @@ $contactAddr  = setting_public('contact_address');
 
 <?= schema_render() ?>
 <script src="<?= e(asset('assets/js/main.js')) ?>" defer></script>
+<script src="<?= e(asset('assets/js/cart.js')) ?>" defer></script>
+<?php if (!empty($pageScript)): ?>
+  <script src="<?= e(asset('assets/js/' . $pageScript)) ?>" defer></script>
+<?php endif; ?>
 </body>
 </html>
