@@ -43,6 +43,27 @@ default (Settings → *Show hidden files*). These four matter:
 - `public_html/app/.htaccess`
 - `public_html/database/.htaccess`
 
+## Easiest path: the web installer
+
+After uploading the files (step 3), you can do the rest from your browser with
+no SSH and no file editing:
+
+1. Create a MySQL database and user in hPanel (step 1 above) — note the name,
+   user and password.
+2. Open **`https://your-domain/install.php`** in a browser.
+3. Follow the four steps: enter the database details (it tests the connection
+   and writes `app/config.php`), create the tables, then create your admin
+   email and password.
+4. On the last step press **Delete installer** — it removes `install.php` and
+   sends you to the login page.
+
+The installer refuses to run once an admin account exists, so it cannot be used
+to add a second account later. Deleting it is still the right thing to do, and
+the final step does it for you in one click.
+
+Steps 4–5 below are the manual equivalent, if you prefer to do it by hand or the
+installer cannot write `app/config.php` (a permissions issue on `app/`).
+
 ## 4. Configure
 
 Copy `app/config.sample.php` to `app/config.php` and edit:
