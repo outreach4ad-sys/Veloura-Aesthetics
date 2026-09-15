@@ -46,6 +46,22 @@ echo $entry(url(), null, 'weekly', '1.0');
 // Shop
 echo $entry(url('shop.php'), null, 'daily', '0.9');
 
+// Static content pages (only those that exist and are indexable)
+$staticPages = [
+    'about.php'            => '0.5',
+    'solutions.php'        => '0.5',
+    'contact.php'          => '0.5',
+    'faq.php'              => '0.5',
+    'privacy.php'          => '0.3',
+    'terms.php'            => '0.3',
+    'shipping-returns.php' => '0.3',
+];
+foreach ($staticPages as $page => $priority) {
+    if (is_file(__DIR__ . '/' . $page)) {
+        echo $entry(url($page), null, 'monthly', $priority);
+    }
+}
+
 // Published categories, newest activity first is irrelevant here — order
 // by the same sort the storefront uses.
 foreach (db_all(

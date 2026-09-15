@@ -63,23 +63,28 @@ Verified against MariaDB 10.11 / PHP 8.4 with a real Chromium browser.
 
 These are real and were **not** hidden:
 
-1. **Seven footer links return 404.** The footer links to `about.php`,
-   `solutions.php`, `contact.php`, `faq.php`, `privacy.php`, `terms.php` and
-   `shipping-returns.php`, none of which exist yet (they are **Phase 7**).
-   Until Phase 7 ships, these are broken links visible on every page. Options:
-   finish Phase 7 first, or temporarily remove those links from
-   `includes/footer.php`.
+1. ~~Seven footer links return 404.~~ **Resolved in Phase 7.** All seven
+   content pages (About, Professional Solutions, Contact, FAQ, Privacy, Terms,
+   Shipping & Returns) now exist, return 200, carry SEO metadata and are in the
+   sitemap. The footer links resolve.
 
 2. **The design system (Phase 2) is not built.** The storefront works and is
    responsive, but the visual treatment is the functional Phase 1 baseline, not
    the premium design in the brief. This is a completeness gap, not a defect.
 
-3. **Placeholders must be replaced.** WhatsApp number, contact email, phone,
+3. **Legal pages need review and real details.** Privacy, Terms and
+   Shipping & Returns ship as honest, working templates with clearly-marked
+   `[PLACEHOLDER]` fields and a visible "Review required" note. The legal
+   entity, jurisdiction, retention periods and confirmed shipping/returns
+   terms must be completed — and the legal pages reviewed by counsel — before
+   they are relied upon. Shipping & Returns reads from Admin → Settings.
+
+4. **Placeholders must be replaced.** WhatsApp number, contact email, phone,
    address and shipping terms still read `[PLACEHOLDER: …]` until set in
    Admin → Settings. The dashboard flags these and they are hidden from
    visitors, but the site is not launch-ready with them unset.
 
-4. **The logo file is not in the repo.** `assets/img/logo.png` must be uploaded;
+5. **The logo file is not in the repo.** `assets/img/logo.png` must be uploaded;
    until then the header/footer fall back to `placeholder.svg`.
 
 ---

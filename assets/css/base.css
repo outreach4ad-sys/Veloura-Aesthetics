@@ -715,3 +715,110 @@ button { font: inherit; cursor: pointer; }
 .category-tile__name { font-family: var(--font-display); font-size: var(--text-lg); }
 .category-tile__count { font-size: var(--text-sm); color: var(--text-muted); }
 .section__more { margin-top: var(--space-8); text-align: center; }
+
+/* =====================================================================
+   Phase 7 — content, legal, FAQ and contact pages
+   ===================================================================== */
+
+/* Page hero (compact, for content pages — not the homepage) */
+.page-hero { background: var(--bg-alt); border-bottom: 1px solid var(--border); }
+.page-hero__inner { padding-block: var(--space-12); }
+.page-hero__eyebrow {
+  display: block; font-size: var(--text-sm); letter-spacing: .14em;
+  text-transform: uppercase; color: var(--copper); margin-bottom: var(--space-2);
+}
+.page-hero h1 { margin: 0 0 var(--space-3); }
+.page-hero__lead { margin: 0; max-width: 60ch; font-size: var(--text-lg); color: var(--text-muted); }
+
+/* Long-form prose (about, solutions, policies) — ~65ch measure */
+.prose { max-width: 68ch; }
+.prose h2 { font-size: var(--text-xl); margin-top: var(--space-12); }
+.prose h2:first-child { margin-top: 0; }
+.prose h3 { font-size: var(--text-lg); margin-top: var(--space-8); }
+.prose p, .prose li { color: var(--text); line-height: 1.7; }
+.prose ul, .prose ol { padding-inline-start: var(--space-6); margin-bottom: var(--space-4); }
+.prose li { margin-bottom: var(--space-2); }
+.prose a { text-decoration: underline; }
+.prose strong { color: var(--navy); }
+
+/* Editorial note: visible on the page, tells the owner to replace/verify.
+   Deliberately conspicuous so it is not shipped by accident. */
+.editor-note {
+  margin: var(--space-6) 0;
+  padding: var(--space-4) var(--space-6);
+  background: #FFFBF3;
+  border: 1px solid #E0B968;
+  border-inline-start: 3px solid var(--copper);
+  border-radius: var(--radius);
+  font-size: var(--text-sm); color: #6B4A16;
+}
+.editor-note strong { color: #6B4A16; }
+
+/* Inline placeholder for a single fact not yet provided */
+.ph {
+  background: #FBEFD8; color: #7A5312;
+  padding: 1px 6px; border-radius: 3px;
+  font-size: 0.9em; font-style: normal; white-space: nowrap;
+}
+
+/* Legal document meta line */
+.legal-updated { font-size: var(--text-sm); color: var(--gray-500); margin-bottom: var(--space-8); }
+
+/* Value / feature grid (solutions, about highlights) */
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-6); }
+.feature {
+  padding: var(--space-6);
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg);
+}
+.feature h3 { font-size: var(--text-lg); margin-bottom: var(--space-2); }
+.feature p { margin: 0; color: var(--text-muted); font-size: var(--text-sm); }
+
+/* Contact channel cards */
+.contact-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: var(--space-12); align-items: start; }
+.channel-list { display: flex; flex-direction: column; gap: var(--space-4); }
+.channel {
+  display: flex; gap: var(--space-4); align-items: flex-start;
+  padding: var(--space-4); background: var(--white);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+}
+.channel__label { font-size: 0.6875rem; letter-spacing: .1em; text-transform: uppercase; color: var(--copper); margin: 0 0 4px; }
+.channel__value { margin: 0; font-weight: 600; color: var(--navy); word-break: break-word; }
+.channel__value a { color: var(--navy); }
+.channel__value a:hover { color: var(--copper-600); }
+.channel__note { margin: 4px 0 0; font-size: var(--text-sm); color: var(--text-muted); }
+
+.contact-form {
+  padding: var(--space-6); background: var(--white);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+}
+.contact-form h2 { font-size: var(--text-lg); margin-bottom: var(--space-4); }
+
+/* FAQ accordion (native <details>, no JS required) */
+.faq-list { max-width: 72ch; display: flex; flex-direction: column; gap: var(--space-3); }
+.faq-item {
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--white); overflow: hidden;
+}
+.faq-item > summary {
+  list-style: none; cursor: pointer;
+  padding: var(--space-4) var(--space-6);
+  font-weight: 600; color: var(--navy);
+  display: flex; justify-content: space-between; align-items: center; gap: var(--space-4);
+}
+.faq-item > summary::-webkit-details-marker { display: none; }
+.faq-item > summary::after {
+  content: "+"; font-size: var(--text-xl); color: var(--copper);
+  transition: transform var(--transition); line-height: 1;
+}
+.faq-item[open] > summary::after { content: "\2212"; }
+.faq-item > summary:hover { color: var(--copper-600); }
+.faq-item__body { padding: 0 var(--space-6) var(--space-4); color: var(--text-muted); }
+.faq-item__body p { margin: 0; line-height: 1.7; }
+
+@media (max-width: 900px) {
+  .contact-grid { grid-template-columns: 1fr; gap: var(--space-8); }
+}
+
+/* Utility: extra top space on a following section head (CSP: no inline style) */
+.section__head--spaced { margin-top: var(--space-8); }
+.channel__note--spaced { margin-top: var(--space-3); }

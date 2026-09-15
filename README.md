@@ -16,7 +16,7 @@ product inquiry website for **Optical Cargo**.
 | 3 | Admin dashboard: categories, products, media, videos, hero, settings, inquiries | ✅ complete |
 | 4 | Inquiry cart, WhatsApp ordering, shop/category/product pages | ✅ complete |
 | 5 | SEO, security hardening (CSP), performance, Hostinger deployment | ✅ complete |
-| 7 | Content pages (about, contact, FAQ, policies) | pending |
+| 7 | Content pages (about, solutions, contact, FAQ, privacy, terms, shipping) | ✅ complete |
 
 ## Structure
 
