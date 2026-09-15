@@ -14,6 +14,7 @@ $groups = [
     'commerce' => 'Catalog & pricing',
     'social'   => 'Social links',
     'policy'   => 'Policies',
+    'mail'     => 'Email & accounts',
     'seo'      => 'SEO',
 ];
 

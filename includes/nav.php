@@ -55,6 +55,13 @@ $logo = (string) setting('site_logo', 'assets/img/logo.png');
       <a class="btn btn--primary btn--sm" href="<?= e(url('inquiry.php')) ?>">
         <?= e(t('cta.request_quote')) ?>
       </a>
+      <?php if (function_exists('accounts_enabled') && accounts_enabled()): ?>
+        <?php if (customer_check()): ?>
+          <a class="btn btn--ghost btn--sm account-link" href="<?= e(url('account.php')) ?>">My account</a>
+        <?php else: ?>
+          <a class="btn btn--ghost btn--sm account-link" href="<?= e(url('account-login.php')) ?>">Sign in</a>
+        <?php endif; ?>
+      <?php endif; ?>
       <button class="nav-toggle" type="button"
               aria-controls="site-nav" aria-expanded="false"
               data-nav-toggle>

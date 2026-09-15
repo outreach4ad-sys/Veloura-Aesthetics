@@ -508,3 +508,129 @@ function inquiry_mark_submitted(): void
 {
     $_SESSION['inquiry_last_submit'] = time();
 }
+
+// =====================================================================
+// Notifications (Phase 8) — best effort, never block the inquiry
+// =====================================================================
+
+/**
+ * Send the customer confirmation and (optionally) notify the admin.
+ *
+ * Called after inquiry_create(). Wrapped so a mail failure can never break
+ * the submission — the inquiry is already saved.
+ *
+ * @param array{id:int,reference:string}   $created
+ * @param array<string,mixed>              $customer
+ * @param array<int,array<string,mixed>>   $lines
+ */
+function inquiry_send_emails(array $created, array $customer, array $lines): void
+{
+    try {
+        $items = array_map(static fn (array $l): array => [
+            'name'     => (string) $l['name'],
+            'quantity' => (int) $l['quantity'],
+        ], $lines);
+
+        // 1) Confirmation to the customer, if they gave an email.
+        $email = trim((string) ($customer['email'] ?? ''));
+        if ($email !== '') {
+            $html = mail_render('inquiry-received', [
+                'title'     => 'We received your inquiry',
+                'name'      => $customer['full_name'] ?? '',
+                'reference' => $created['reference'],
+                'items'     => $items,
+                'shopUrl'   => abs_url('shop.php'),
+            ]);
+            mail_send($email, 'We received your inquiry (' . $created['reference'] . ')', $html, [
+                'template' => 'inquiry-received',
+            ]);
+        }
+
+        // 2) Notify the admin, if enabled and a destination exists.
+        if (setting_bool('mail_admin_notify', true)) {
+            $adminEmail = setting_public('contact_email');
+            if ($adminEmail === '') {
+                $adminEmail = (string) setting('mail_from_email', '');
+            }
+            if ($adminEmail !== '' && !str_starts_with($adminEmail, '[PLACEHOLDER')) {
+                $html = mail_render('admin-new-inquiry', [
+                    'title'     => 'New inquiry',
+                    'reference' => $created['reference'],
+                    'customer'  => $customer,
+                    'items'     => $items,
+                    'adminUrl'  => abs_url('admin/inquiry-view.php?id=' . (int) $created['id']),
+                ]);
+                mail_send($adminEmail, 'New inquiry: ' . $created['reference'], $html, [
+                    'template' => 'admin-new-inquiry',
+                    'reply_to' => $email !== '' ? $email : null,
+                ]);
+            }
+        }
+    } catch (Throwable $e) {
+        error_log('[Veloura] inquiry_send_emails failed: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Replies to an inquiry, newest first.
+ *
+ * @return array<int,array<string,mixed>>
+ */
+function inquiry_replies(int $inquiryId): array
+{
+    return db_all(
+        'SELECT r.*, a.name AS admin_name
+           FROM inquiry_replies r
+           LEFT JOIN admins a ON a.id = r.admin_id
+          WHERE r.inquiry_id = :id
+          ORDER BY r.created_at DESC',
+        ['id' => $inquiryId]
+    );
+}
+
+/**
+ * Send an admin reply to the customer by email and log it.
+ *
+ * @return array{ok:bool,error:?string}
+ */
+function inquiry_reply_send(int $inquiryId, int $adminId, string $subject, string $body): array
+{
+    $inquiry = inquiry_by_id($inquiryId);
+    if ($inquiry === null) {
+        return ['ok' => false, 'error' => 'Inquiry not found.'];
+    }
+
+    $to = trim((string) ($inquiry['email'] ?? ''));
+    if ($to === '') {
+        return ['ok' => false, 'error' => 'This inquiry has no email address to reply to.'];
+    }
+
+    $html = mail_render('admin-reply', [
+        'title'     => 'Regarding your inquiry',
+        'name'      => $inquiry['full_name'],
+        'reference' => $inquiry['reference'],
+        'bodyText'  => $body,
+    ]);
+
+    $replyTo = setting_public('contact_email');
+    $result = mail_send($to, $subject, $html, [
+        'template' => 'admin-reply',
+        'reply_to' => $replyTo !== '' ? $replyTo : null,
+    ]);
+
+    db_insert('inquiry_replies', [
+        'inquiry_id' => $inquiryId,
+        'admin_id'   => $adminId ?: null,
+        'subject'    => mb_substr($subject, 0, 255),
+        'body'       => $body,
+        'status'     => $result['ok'] ? 'sent' : 'failed',
+        'error'      => $result['error'] !== null ? mb_substr((string) $result['error'], 0, 255) : null,
+    ]);
+
+    // Moving an inquiry to "contacted" on first reply is a sensible default.
+    if ($result['ok'] && $inquiry['status'] === 'new') {
+        inquiry_set_status($inquiryId, 'contacted');
+    }
+
+    return $result;
+}

@@ -29,6 +29,26 @@ switch ($op) {
         }
         break;
 
+    case 'reply':
+        $subject = trim((string) input('subject', ''));
+        $body    = trim((string) ($_POST['body'] ?? ''));
+
+        if ($subject === '' || $body === '') {
+            flash('error', 'Please enter a subject and a message.');
+            break;
+        }
+
+        $result = inquiry_reply_send($id, (int) (auth_user()['id'] ?? 0), $subject, $body);
+
+        if ($result['ok']) {
+            flash('success', 'Reply sent to the customer.');
+        } elseif (mail_ready()) {
+            flash('error', 'The reply could not be sent: ' . $result['error']);
+        } else {
+            flash('info', 'Reply saved, but email is not configured yet, so it was not delivered. Set it up in Settings → Email.');
+        }
+        break;
+
     case 'notes':
         inquiry_set_notes($id, (string) ($_POST['admin_notes'] ?? ''));
         flash('success', 'Notes saved.');

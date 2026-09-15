@@ -73,6 +73,7 @@ require VELOURA_APP . '/security.php';
 require VELOURA_APP . '/settings.php';
 require VELOURA_APP . '/seo.php';
 require VELOURA_APP . '/upload.php';
+require VELOURA_APP . '/mailer.php';
 
 // Data access layer: every repository file is loaded automatically, so a
 // new repositories/*.php file needs no bootstrap edit.

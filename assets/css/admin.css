@@ -470,3 +470,11 @@
 
 /* Currency code reads as uppercase without an inline style (CSP-friendly). */
 #f_currency { text-transform: uppercase; }
+
+/* Inquiry email replies */
+.panel__title--spaced { margin-top: var(--space-6); }
+.reply-list { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-3); }
+.reply-item { padding: var(--space-4); background: var(--gray-100); border: 1px solid var(--border); border-radius: var(--radius); }
+.reply-item__head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); }
+.reply-item__meta { margin: 4px 0 8px; font-size: 0.75rem; color: var(--gray-500); }
+.reply-item__body { margin: 0; font-size: var(--text-sm); }

@@ -78,6 +78,10 @@ if (is_post()) {
         $created = inquiry_create($form, $lines);
         inquiry_mark_submitted();
 
+        // Best-effort emails: confirmation to the customer, notice to admin.
+        // A mail failure never affects the saved inquiry.
+        inquiry_send_emails($created, $form, $lines);
+
         $message = inquiry_whatsapp_message($created['reference'], $form, $lines);
         $link    = whatsapp_link($message);
 

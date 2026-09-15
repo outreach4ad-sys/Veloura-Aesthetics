@@ -822,3 +822,27 @@ button { font: inherit; cursor: pointer; }
 /* Utility: extra top space on a following section head (CSP: no inline style) */
 .section__head--spaced { margin-top: var(--space-8); }
 .channel__note--spaced { margin-top: var(--space-3); }
+
+/* =====================================================================
+   Phase 8 — customer accounts
+   ===================================================================== */
+.container.narrow { max-width: 520px; }
+.auth-form { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); }
+.auth-form__alt { margin: var(--space-4) 0 0; font-size: var(--text-sm); color: var(--text-muted); text-align: center; }
+.auth-form__resend { text-align: center; margin-top: var(--space-3); }
+.code-input { font-size: var(--text-2xl); letter-spacing: .5em; text-align: center; font-family: var(--font-display); }
+
+.account-grid { display: grid; grid-template-columns: 260px minmax(0,1fr); gap: var(--space-8); align-items: start; }
+.account-side { position: sticky; top: calc(var(--header-h) + var(--space-4)); }
+.panel-lite { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); }
+.account-logout { margin-top: var(--space-4); }
+.account-main h2 { font-size: var(--text-xl); }
+.account-table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+.account-table th, .account-table td { padding: var(--space-3); text-align: start; border-bottom: 1px solid var(--border); }
+.account-table th { color: var(--gray-500); text-transform: uppercase; letter-spacing: .06em; font-size: 0.75rem; }
+
+@media (max-width: 840px) {
+  .account-grid { grid-template-columns: 1fr; }
+  .account-side { position: static; }
+  .account-link { display: none; }
+}

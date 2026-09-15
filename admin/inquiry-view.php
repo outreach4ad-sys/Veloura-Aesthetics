@@ -13,7 +13,9 @@ if ($inquiry === null) {
     redirect('admin/inquiries.php');
 }
 
-$items = inquiry_items($id);
+$items   = inquiry_items($id);
+$replies = inquiry_replies($id);
+$canEmail = trim((string) ($inquiry['email'] ?? '')) !== '';
 
 // Total is only meaningful when every line carries a price.
 $total    = 0.0;
@@ -139,6 +141,77 @@ require __DIR__ . '/_layout.php';
 
       <button class="btn btn--dark" type="submit">Save notes</button>
     </form>
+
+    <!-- ------------------------------------------------ reply by email -->
+    <div class="panel">
+      <h2 class="panel__title">Reply by email</h2>
+
+      <?php if (!$canEmail): ?>
+        <p class="panel__hint">
+          This inquiry has no email address, so a reply cannot be emailed. You can still
+          reach the customer on WhatsApp.
+        </p>
+      <?php else: ?>
+        <?php if (!mail_ready()): ?>
+          <p class="flash flash--info">
+            Email sending is not configured yet. Set it up in
+            <a href="<?= e(url('admin/settings.php')) ?>">Settings &rarr; Email</a>.
+            Replies you send now will be logged but not delivered.
+          </p>
+        <?php endif; ?>
+
+        <form method="post" action="<?= e(url('admin/actions/inquiries.php')) ?>">
+          <?= csrf_field() ?>
+          <input type="hidden" name="op" value="reply">
+          <input type="hidden" name="id" value="<?= (int) $id ?>">
+          <input type="hidden" name="return_to" value="<?= e(admin_return_to()) ?>">
+
+          <p class="panel__hint">
+            Sends an email to <strong><?= e($inquiry['email']) ?></strong>. Replies come back
+            to your contact email.
+          </p>
+
+          <div class="field">
+            <label class="field__label" for="f_reply_subject">Subject</label>
+            <input class="field__input" type="text" id="f_reply_subject" name="subject"
+                   value="Regarding your inquiry <?= e($inquiry['reference']) ?>" maxlength="255" required>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="f_reply_body">Message</label>
+            <textarea class="field__textarea" id="f_reply_body" name="body" rows="7" required
+                      placeholder="Write your reply to the customer…"></textarea>
+          </div>
+
+          <button class="btn btn--primary" type="submit">Send reply</button>
+        </form>
+      <?php endif; ?>
+
+      <?php if ($replies !== []): ?>
+        <h3 class="panel__title panel__title--spaced">Previous replies</h3>
+        <ul class="reply-list">
+          <?php foreach ($replies as $reply): ?>
+            <li class="reply-item">
+              <div class="reply-item__head">
+                <strong><?= e($reply['subject']) ?></strong>
+                <?= status_badge(
+                    $reply['status'] === 'sent' ? 'Sent' : 'Failed',
+                    $reply['status'] === 'sent' ? 'success' : 'muted'
+                ) ?>
+              </div>
+              <p class="reply-item__meta">
+                <?= e(format_date($reply['created_at'], 'M j, Y H:i')) ?>
+                <?php if (!empty($reply['admin_name'])): ?> · <?= e($reply['admin_name']) ?><?php endif; ?>
+                <?php if ($reply['status'] === 'failed' && !empty($reply['error'])): ?>
+                  · <span class="cell-muted"><?= e($reply['error']) ?></span>
+                <?php endif; ?>
+              </p>
+              <p class="reply-item__body preserve-lines"><?= nl2br(e($reply['body'])) ?></p>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+      <?php endif; ?>
+    </div>
 
   </section>
 
