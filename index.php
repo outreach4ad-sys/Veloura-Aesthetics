@@ -68,18 +68,11 @@ require __DIR__ . '/includes/header.php';
     <?php if ($categories === []): ?>
       <p class="empty-state">No categories are published yet.</p>
     <?php else: ?>
-      <ul class="category-grid">
+      <div class="cat-cards">
         <?php foreach ($categories as $category): ?>
-          <li class="category-tile">
-            <a href="<?= e(category_url($category)) ?>">
-              <span class="category-tile__name"><?= e($category['name']) ?></span>
-              <span class="category-tile__count">
-                <?= (int) $category['product_count'] ?> product<?= (int) $category['product_count'] === 1 ? '' : 's' ?>
-              </span>
-            </a>
-          </li>
+          <?php require __DIR__ . '/includes/category-card.php'; ?>
         <?php endforeach; ?>
-      </ul>
+      </div>
     <?php endif; ?>
   </div>
 </section>

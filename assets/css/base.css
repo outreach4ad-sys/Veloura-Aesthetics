@@ -846,3 +846,81 @@ button { font: inherit; cursor: pointer; }
   .account-side { position: static; }
   .account-link { display: none; }
 }
+
+/* =====================================================================
+   Category image cards — side by side, with hover-reveal
+   (vanilla-CSS version of the requested HoverRevealCards effect)
+   ===================================================================== */
+.cat-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+.cat-card {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--navy);
+  box-shadow: var(--shadow-sm);
+  transition: transform 400ms ease, opacity 400ms ease, filter 400ms ease, box-shadow 400ms ease;
+  will-change: transform;
+}
+
+/* Fallback when a category has no image yet. */
+.cat-card--placeholder {
+  background: linear-gradient(150deg, var(--navy) 0%, var(--navy-500) 55%, var(--copper-600) 130%);
+}
+
+.cat-card__img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 500ms ease;
+}
+
+.cat-card__overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(11,31,53,.85) 0%, rgba(11,31,53,.35) 45%, rgba(11,31,53,0) 75%);
+}
+
+.cat-card__body {
+  position: absolute; inset-inline: 0; inset-block-end: 0;
+  display: flex; flex-direction: column; gap: 2px;
+  padding: var(--space-4) var(--space-4) var(--space-6);
+  color: var(--white);
+}
+.cat-card__count {
+  font-size: 0.6875rem; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--copper-200);
+}
+.cat-card__name {
+  font-family: var(--font-display);
+  font-size: var(--text-xl); line-height: 1.15; color: var(--white);
+}
+
+/* Hover-reveal: hovering the grid dims the others; the hovered card lifts.
+   Focus-within keeps it keyboard-accessible. */
+@media (hover: hover) {
+  .cat-cards:hover .cat-card,
+  .cat-cards:focus-within .cat-card {
+    opacity: .55; filter: blur(1.5px); transform: scale(.98);
+  }
+  .cat-cards:hover .cat-card:hover,
+  .cat-cards:focus-within .cat-card:focus-visible {
+    opacity: 1; filter: none; transform: scale(1.03);
+    box-shadow: var(--shadow-md);
+  }
+}
+.cat-card:hover .cat-card__img { transform: scale(1.06); }
+.cat-card:focus-visible { outline: 2px solid var(--copper); outline-offset: 3px; }
+
+@media (max-width: 900px) { .cat-cards { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .cat-cards { grid-template-columns: 1fr; } .cat-card { aspect-ratio: 16 / 10; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cat-card, .cat-card__img { transition: none; }
+  .cat-cards:hover .cat-card, .cat-cards:focus-within .cat-card { filter: none; transform: none; opacity: 1; }
+}

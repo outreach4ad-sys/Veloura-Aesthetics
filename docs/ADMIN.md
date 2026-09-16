@@ -107,3 +107,42 @@ that table makes it editable here with no code change. Values still reading
 | Open redirect | `return_to` accepts only paths beginning `admin/` |
 | Cross-record access | Gallery and video operations are scoped by product id, so an id belonging to another product is refused |
 | Settings injection | Only keys already present in `site_settings` are writable |
+
+---
+
+## Images not uploading or not showing?
+
+The image pipeline (upload → store → serve → display on the homepage, category
+cards and product pages) is verified working. If images fail on your server,
+it is almost always one of these host-level causes:
+
+**1. The image is larger than PHP allows.** Hostinger's default
+`upload_max_filesize` is often 2 MB, so a phone photo is rejected before the app
+sees it. This project ships a `.user.ini` in the site root that raises the limit
+to 16 MB — make sure that file uploaded (it is a dotfile; enable *Show hidden
+files* in File Manager). If your host ignores `.user.ini`, set the same values
+in **hPanel → PHP Configuration → PHP options**:
+
+```
+upload_max_filesize = 16M
+post_max_size = 20M
+max_execution_time = 120
+memory_limit = 256M
+```
+
+**2. The uploads folder is not writable.** The app writes to
+`uploads/products`, `uploads/categories` and `uploads/hero`. Set these (and
+`uploads/` itself) to **755** in File Manager → Permissions. If they are
+missing, the app tries to create them, but only if `uploads/` itself is
+writable.
+
+**3. The hidden `.htaccess` files did not upload.** `uploads/.htaccess` must be
+present (it blocks code execution but allows images). Enable *Show hidden files*
+and confirm it is there.
+
+**How to tell which one it is:** open a product or category, choose an image and
+save. If a red message appears under the image field, it tells you the exact
+reason (too large, not a valid image, or could not be saved = permissions). If
+the save succeeds but the image does not appear, it is a display/URL issue —
+open the image URL directly (e.g. `https://your-domain/uploads/products/…png`);
+a 200 means the file is fine, a 403/404 points to `.htaccess` or a missing file.
