@@ -29,28 +29,61 @@ page_meta([
 require __DIR__ . '/includes/header.php';
 ?>
 
-<?php if ($hero !== null): ?>
-  <section class="section section--dark" aria-labelledby="hero-title">
-    <div class="container">
-      <span class="section__eyebrow"><?= e(setting('site_tagline', '')) ?></span>
-      <h1 id="hero-title"><?= e($hero['title']) ?></h1>
-      <?php if (!empty($hero['subtitle'])): ?>
-        <p class="section__lead"><?= e($hero['subtitle']) ?></p>
-      <?php endif; ?>
+<?php if ($slides !== []): ?>
+  <section class="hero" aria-label="Featured" data-hero
+           data-hero-interval="4000">
+    <div class="hero__track">
+      <?php foreach ($slides as $i => $slide): ?>
+        <?php $hasImg = !empty($slide['image'])
+              && is_file(VELOURA_ROOT . '/' . ltrim((string) $slide['image'], '/')); ?>
+        <div class="hero__slide<?= $i === 0 ? ' is-active' : '' ?><?= $hasImg ? '' : ' hero__slide--plain' ?>"
+             data-hero-slide role="group"
+             aria-roledescription="slide"
+             aria-label="<?= (int) $i + 1 ?> of <?= count($slides) ?>"
+             <?= $i === 0 ? '' : 'aria-hidden="true"' ?>>
+          <?php if ($hasImg): ?>
+            <img class="hero__img" src="<?= e(upload_url($slide['image'])) ?>"
+                 alt="<?= e($slide['image_alt'] ?: $slide['title']) ?>"
+                 <?= $i === 0 ? 'fetchpriority="high"' : 'loading="lazy"' ?> decoding="async">
+            <span class="hero__scrim" aria-hidden="true"></span>
+          <?php endif; ?>
 
-      <p>
-        <?php if (!empty($hero['cta_primary_label'])): ?>
-          <a class="btn btn--primary" href="<?= e(url($hero['cta_primary_url'] ?: 'shop.php')) ?>">
-            <?= e($hero['cta_primary_label']) ?>
-          </a>
-        <?php endif; ?>
-        <?php if (!empty($hero['cta_secondary_label'])): ?>
-          <a class="btn btn--ghost" href="<?= e(url($hero['cta_secondary_url'] ?: 'inquiry.php')) ?>">
-            <?= e($hero['cta_secondary_label']) ?>
-          </a>
-        <?php endif; ?>
-      </p>
+          <div class="container hero__content">
+            <span class="section__eyebrow"><?= e(setting('site_tagline', '')) ?></span>
+            <?php if ($i === 0): ?>
+              <h1 class="hero__title"><?= e($slide['title']) ?></h1>
+            <?php else: ?>
+              <p class="hero__title" role="heading" aria-level="2"><?= e($slide['title']) ?></p>
+            <?php endif; ?>
+            <?php if (!empty($slide['subtitle'])): ?>
+              <p class="hero__lead"><?= e($slide['subtitle']) ?></p>
+            <?php endif; ?>
+            <p class="hero__actions">
+              <?php if (!empty($slide['cta_primary_label'])): ?>
+                <a class="btn btn--primary" href="<?= e(url($slide['cta_primary_url'] ?: 'shop.php')) ?>">
+                  <?= e($slide['cta_primary_label']) ?>
+                </a>
+              <?php endif; ?>
+              <?php if (!empty($slide['cta_secondary_label'])): ?>
+                <a class="btn btn--ghost" href="<?= e(url($slide['cta_secondary_url'] ?: 'inquiry.php')) ?>">
+                  <?= e($slide['cta_secondary_label']) ?>
+                </a>
+              <?php endif; ?>
+            </p>
+          </div>
+        </div>
+      <?php endforeach; ?>
     </div>
+
+    <?php if (count($slides) > 1): ?>
+      <div class="hero__dots" role="tablist" aria-label="Choose slide" data-hero-dots>
+        <?php foreach ($slides as $i => $slide): ?>
+          <button class="hero__dot<?= $i === 0 ? ' is-active' : '' ?>" type="button"
+                  role="tab" aria-selected="<?= $i === 0 ? 'true' : 'false' ?>"
+                  aria-label="Slide <?= (int) $i + 1 ?>" data-hero-dot="<?= (int) $i ?>"></button>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
   </section>
 <?php endif; ?>
 

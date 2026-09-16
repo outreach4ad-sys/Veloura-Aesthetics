@@ -851,17 +851,18 @@ button { font: inherit; cursor: pointer; }
    Category image cards — side by side, with hover-reveal
    (vanilla-CSS version of the requested HoverRevealCards effect)
    ===================================================================== */
+/* Compact: small tiles side by side that don't take much vertical space. */
 .cat-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-3);
 }
 
 .cat-card {
   position: relative;
   display: block;
-  aspect-ratio: 4 / 5;
-  border-radius: var(--radius-lg);
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius);
   overflow: hidden;
   background: var(--navy);
   box-shadow: var(--shadow-sm);
@@ -889,16 +890,16 @@ button { font: inherit; cursor: pointer; }
 .cat-card__body {
   position: absolute; inset-inline: 0; inset-block-end: 0;
   display: flex; flex-direction: column; gap: 2px;
-  padding: var(--space-4) var(--space-4) var(--space-6);
+  padding: var(--space-3) var(--space-4);
   color: var(--white);
 }
 .cat-card__count {
-  font-size: 0.6875rem; letter-spacing: .14em; text-transform: uppercase;
+  font-size: 0.625rem; letter-spacing: .12em; text-transform: uppercase;
   color: var(--copper-200);
 }
 .cat-card__name {
   font-family: var(--font-display);
-  font-size: var(--text-xl); line-height: 1.15; color: var(--white);
+  font-size: var(--text-base); line-height: 1.15; color: var(--white);
 }
 
 /* Hover-reveal: hovering the grid dims the others; the hovered card lifts.
@@ -917,10 +918,91 @@ button { font: inherit; cursor: pointer; }
 .cat-card:hover .cat-card__img { transform: scale(1.06); }
 .cat-card:focus-visible { outline: 2px solid var(--copper); outline-offset: 3px; }
 
-@media (max-width: 900px) { .cat-cards { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 480px) { .cat-cards { grid-template-columns: 1fr; } .cat-card { aspect-ratio: 16 / 10; } }
+@media (max-width: 520px) { .cat-cards { grid-template-columns: repeat(2, 1fr); } }
 
 @media (prefers-reduced-motion: reduce) {
   .cat-card, .cat-card__img { transition: none; }
   .cat-cards:hover .cat-card, .cat-cards:focus-within .cat-card { filter: none; transform: none; opacity: 1; }
+}
+
+/* =====================================================================
+   Hero slideshow — images, text overlay, auto-advance
+   ===================================================================== */
+.hero {
+  position: relative;
+  background: var(--navy);
+  overflow: hidden;
+}
+.hero__track {
+  position: relative;
+  min-height: 520px;
+}
+.hero__slide {
+  position: absolute; inset: 0;
+  display: flex; align-items: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity 700ms ease;
+}
+.hero__slide.is-active { opacity: 1; visibility: visible; }
+
+/* Slides with no image keep the navy ground and a subtle copper wash. */
+.hero__slide--plain {
+  background: linear-gradient(120deg, var(--navy) 0%, var(--navy-700) 60%, var(--navy-500) 100%);
+}
+
+.hero__img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+/* Dark scrim so white text stays readable over any photo. */
+.hero__scrim {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(11,31,53,.86) 0%, rgba(11,31,53,.65) 45%, rgba(11,31,53,.30) 100%);
+}
+
+.hero__content {
+  position: relative;
+  padding-block: var(--space-16);
+  color: var(--ivory);
+  max-width: var(--container);
+}
+.hero__title {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl); line-height: 1.1;
+  color: var(--white); margin: 0 0 var(--space-4); max-width: 20ch;
+  text-wrap: balance;
+}
+.hero__lead {
+  font-size: var(--text-lg); color: var(--gray-300);
+  max-width: 52ch; margin: 0 0 var(--space-6);
+}
+.hero__actions { margin: 0; display: flex; flex-wrap: wrap; gap: var(--space-3); }
+/* Ghost button is on a dark ground here. */
+.hero .btn--ghost { color: var(--white); border-color: rgba(255,255,255,.45); }
+.hero .btn--ghost:hover { color: var(--copper-200); border-color: var(--copper); }
+
+/* Dots */
+.hero__dots {
+  position: absolute; inset-block-end: var(--space-6); inset-inline-start: 50%;
+  translate: -50% 0;
+  display: flex; gap: var(--space-2); z-index: 2;
+}
+.hero__dot {
+  width: 10px; height: 10px; padding: 0;
+  border-radius: 999px; border: 0; cursor: pointer;
+  background: rgba(255,255,255,.4);
+  transition: background var(--transition), width var(--transition);
+}
+.hero__dot:hover { background: rgba(255,255,255,.7); }
+.hero__dot.is-active { background: var(--copper); width: 26px; }
+
+@media (max-width: 700px) {
+  .hero__track { min-height: 440px; }
+  .hero__title { font-size: var(--text-3xl); }
+  .hero__scrim { background: linear-gradient(180deg, rgba(11,31,53,.55) 0%, rgba(11,31,53,.85) 100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__slide { transition: none; }
 }

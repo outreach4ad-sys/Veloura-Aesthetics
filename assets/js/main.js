@@ -67,8 +67,61 @@
     });
   }
 
+
+  /* ------------------------------------------------------ hero slideshow */
+  function initHero() {
+    var hero = document.querySelector('[data-hero]');
+    if (!hero) return;
+
+    var slides = Array.prototype.slice.call(hero.querySelectorAll('[data-hero-slide]'));
+    var dots = Array.prototype.slice.call(hero.querySelectorAll('[data-hero-dot]'));
+    if (slides.length < 2) return;
+
+    var interval = parseInt(hero.getAttribute('data-hero-interval'), 10) || 4000;
+    var index = 0;
+    var timer = null;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function show(next) {
+      next = (next + slides.length) % slides.length;
+      slides[index].classList.remove('is-active');
+      slides[index].setAttribute('aria-hidden', 'true');
+      slides[next].classList.add('is-active');
+      slides[next].removeAttribute('aria-hidden');
+      if (dots[index]) { dots[index].classList.remove('is-active'); dots[index].setAttribute('aria-selected', 'false'); }
+      if (dots[next]) { dots[next].classList.add('is-active'); dots[next].setAttribute('aria-selected', 'true'); }
+      index = next;
+    }
+
+    function start() {
+      if (reduce) return;
+      stop();
+      timer = window.setInterval(function () { show(index + 1); }, interval);
+    }
+    function stop() { if (timer) { window.clearInterval(timer); timer = null; } }
+
+    dots.forEach(function (dot) {
+      dot.addEventListener('click', function () {
+        show(parseInt(dot.getAttribute('data-hero-dot'), 10) || 0);
+        start();
+      });
+    });
+
+    // Pause while the visitor is interacting or the tab is hidden.
+    hero.addEventListener('mouseenter', stop);
+    hero.addEventListener('mouseleave', start);
+    hero.addEventListener('focusin', stop);
+    hero.addEventListener('focusout', start);
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { stop(); } else { start(); }
+    });
+
+    start();
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     initNav();
+    initHero();
     initAutoSubmit();
     initGallery();
   });
