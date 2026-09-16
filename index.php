@@ -101,11 +101,21 @@ require __DIR__ . '/includes/header.php';
     <?php if ($categories === []): ?>
       <p class="empty-state">No categories are published yet.</p>
     <?php else: ?>
-      <div class="cat-cards">
+      <nav class="cat-chips" aria-label="Categories">
         <?php foreach ($categories as $category): ?>
-          <?php require __DIR__ . '/includes/category-card.php'; ?>
+          <?php
+          $hasChipImg = !empty($category['image'])
+              && is_file(VELOURA_ROOT . '/' . ltrim((string) $category['image'], '/'));
+          ?>
+          <a class="cat-chip" href="<?= e(category_url($category)) ?>">
+            <?php if ($hasChipImg): ?>
+              <img class="cat-chip__img" src="<?= e(upload_url($category['image'])) ?>"
+                   alt="" width="28" height="28" loading="lazy" decoding="async">
+            <?php endif; ?>
+            <span class="cat-chip__name"><?= e($category['name']) ?></span>
+          </a>
         <?php endforeach; ?>
-      </div>
+      </nav>
     <?php endif; ?>
   </div>
 </section>

@@ -1006,3 +1006,47 @@ button { font: inherit; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   .hero__slide { transition: none; }
 }
+
+/* =====================================================================
+   Category chips — small buttons side by side on one line (wraps)
+   ===================================================================== */
+.cat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 14px 6px 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--navy);
+  font-size: var(--text-sm);
+  line-height: 1;
+  white-space: nowrap;
+  transition: border-color var(--transition), background var(--transition), color var(--transition);
+}
+.cat-chip:has(.cat-chip__name:only-child),
+.cat-chip:not(:has(.cat-chip__img)) { padding-inline-start: 14px; }
+.cat-chip:hover {
+  border-color: var(--copper);
+  background: var(--ivory);
+  color: var(--copper-600);
+}
+.cat-chip__img {
+  width: 28px; height: 28px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: var(--ivory);
+  flex: 0 0 auto;
+}
+.cat-chip__name { font-weight: 600; letter-spacing: .01em; }
+
+@media (max-width: 520px) {
+  .cat-chips { gap: 6px; }
+  .cat-chip { font-size: 0.8125rem; padding: 5px 12px 5px 5px; }
+  .cat-chip__img { width: 24px; height: 24px; }
+}
